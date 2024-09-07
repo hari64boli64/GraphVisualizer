@@ -1,12 +1,12 @@
 {
   "name": "rust",
   "type": "module",
-  "description": "lattice_surgery_visualizer",
+  "description": "Graph Visualizer",
   "version": "0.1.0",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/quantum-programming/lattice_surgery_visualizer"
+    "url": "https://github.com/hari64boli64/GraphVisualizer"
   },
   "files": [
     "rust_bg.wasm",

@@ -1,7 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export const memory: WebAssembly.Memory;
-export function __wbg_ret_free(a: number): void;
+export function __wbg_ret_free(a: number, b: number): void;
 export function __wbg_get_ret_score(a: number): number;
 export function __wbg_set_ret_score(a: number, b: number): void;
 export function __wbg_get_ret_err(a: number, b: number): void;
