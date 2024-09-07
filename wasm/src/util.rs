@@ -5,14 +5,15 @@ const W: f64 = 600.0;
 const H: f64 = 600.0;
 
 pub struct Output {
-    pub n: usize,                        // number of vertices
-    pub m: usize,                        // number of edges
-    pub k: f64,                          // constant for score calculation
-    pub row: Vec<usize>,                 // edge u
-    pub col: Vec<usize>,                 // edge v
-    pub data: Vec<f64>,                  // edge weight
-    pub t: usize,                        // number of turns
-    pub positions: Vec<Vec<(f64, f64)>>, // positions[turn][vertex]
+    pub n: usize,                           // number of vertices
+    pub m: usize,                           // number of edges
+    pub k: f64,                             // constant for score calculation
+    pub row: Vec<usize>,                    // edge u
+    pub col: Vec<usize>,                    // edge v
+    pub data: Vec<f64>,                     // edge weight
+    pub t: usize,                           // number of turns
+    pub positions: Vec<Vec<(f64, f64)>>,    // positions[turn][vertex]
+    pub positionsVis: Vec<Vec<(f64, f64)>>, // for visualization
 }
 
 fn readVal(iter: &mut std::str::SplitWhitespace) -> f64 {
@@ -93,10 +94,13 @@ pub fn parse_output(f: &str) -> Output {
         }
     }
     let invMaxMinusMin = 1.0 / (maxXY - minXY);
+    let mut positionsVis = vec![vec![(0.0, 0.0); n]; t];
     for i in 0..t {
         for j in 0..n {
-            positions[i][j].0 = W * 0.05 + W * 0.9 * (positions[i][j].0 - minXY) * invMaxMinusMin;
-            positions[i][j].1 = H * 0.05 + H * 0.9 * (positions[i][j].1 - minXY) * invMaxMinusMin;
+            positionsVis[i][j].0 =
+                W * 0.05 + W * 0.9 * (positions[i][j].0 - minXY) * invMaxMinusMin;
+            positionsVis[i][j].1 =
+                H * 0.05 + H * 0.9 * (positions[i][j].1 - minXY) * invMaxMinusMin;
         }
     }
     Output {
@@ -108,6 +112,7 @@ pub fn parse_output(f: &str) -> Output {
         data,
         t,
         positions,
+        positionsVis,
     }
 }
 
@@ -155,10 +160,10 @@ pub fn vis(output: &Output, turn: usize) -> (f64, String, String, String) {
     for i in 0..output.m {
         let u = output.row[i];
         let v = output.col[i];
-        let x1 = output.positions[turn][u].0;
-        let y1 = output.positions[turn][u].1;
-        let x2 = output.positions[turn][v].0;
-        let y2 = output.positions[turn][v].1;
+        let x1 = output.positionsVis[turn][u].0;
+        let y1 = output.positionsVis[turn][u].1;
+        let x2 = output.positionsVis[turn][v].0;
+        let y2 = output.positionsVis[turn][v].1;
         doc = doc.add(
             Line::new()
                 .set("x1", x1)
@@ -170,7 +175,7 @@ pub fn vis(output: &Output, turn: usize) -> (f64, String, String, String) {
     }
 
     for i in 0..output.n {
-        let (x, y) = output.positions[turn][i];
+        let (x, y) = output.positionsVis[turn][i];
         doc = doc.add(
             Circle::new()
                 .set("cx", x)
