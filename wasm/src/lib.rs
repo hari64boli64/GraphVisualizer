@@ -24,5 +24,9 @@ pub fn vis(_output: String, turn: usize) -> Ret {
 #[wasm_bindgen]
 pub fn get_max_turn(_output: String) -> usize {
     let output = util::parse_output(&_output);
-    output.t as usize
+    if output.t == 0 {
+        0
+    } else {
+        output.t as usize - 1
+    }
 }
