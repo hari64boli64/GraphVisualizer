@@ -3,9 +3,10 @@
 /**
 * @param {string} _output
 * @param {number} turn
+* @param {boolean} visualizer_mode
 * @returns {Ret}
 */
-export function vis(_output: string, turn: number): Ret;
+export function vis(_output: string, turn: number, visualizer_mode: boolean): Ret;
 /**
 * @param {string} _output
 * @returns {number}
@@ -23,6 +24,9 @@ export class Ret {
   score: number;
 /**
 */
+  scores: Float64Array;
+/**
+*/
   svg1: string;
 /**
 */
@@ -36,13 +40,15 @@ export interface InitOutput {
   readonly __wbg_ret_free: (a: number, b: number) => void;
   readonly __wbg_get_ret_score: (a: number) => number;
   readonly __wbg_set_ret_score: (a: number, b: number) => void;
+  readonly __wbg_get_ret_scores: (a: number, b: number) => void;
+  readonly __wbg_set_ret_scores: (a: number, b: number, c: number) => void;
   readonly __wbg_get_ret_err: (a: number, b: number) => void;
   readonly __wbg_set_ret_err: (a: number, b: number, c: number) => void;
   readonly __wbg_get_ret_svg1: (a: number, b: number) => void;
   readonly __wbg_set_ret_svg1: (a: number, b: number, c: number) => void;
   readonly __wbg_get_ret_svg2: (a: number, b: number) => void;
   readonly __wbg_set_ret_svg2: (a: number, b: number, c: number) => void;
-  readonly vis: (a: number, b: number, c: number) => number;
+  readonly vis: (a: number, b: number, c: number, d: number) => number;
   readonly get_max_turn: (a: number, b: number) => number;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_free: (a: number, b: number, c: number) => void;

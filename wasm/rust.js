@@ -27,7 +27,28 @@ function getDataViewMemory0() {
     return cachedDataViewMemory0;
 }
 
+let cachedFloat64ArrayMemory0 = null;
+
+function getFloat64ArrayMemory0() {
+    if (cachedFloat64ArrayMemory0 === null || cachedFloat64ArrayMemory0.byteLength === 0) {
+        cachedFloat64ArrayMemory0 = new Float64Array(wasm.memory.buffer);
+    }
+    return cachedFloat64ArrayMemory0;
+}
+
+function getArrayF64FromWasm0(ptr, len) {
+    ptr = ptr >>> 0;
+    return getFloat64ArrayMemory0().subarray(ptr / 8, ptr / 8 + len);
+}
+
 let WASM_VECTOR_LEN = 0;
+
+function passArrayF64ToWasm0(arg, malloc) {
+    const ptr = malloc(arg.length * 8, 8) >>> 0;
+    getFloat64ArrayMemory0().set(arg, ptr / 8);
+    WASM_VECTOR_LEN = arg.length;
+    return ptr;
+}
 
 const cachedTextEncoder = (typeof TextEncoder !== 'undefined' ? new TextEncoder('utf-8') : { encode: () => { throw Error('TextEncoder not available') } } );
 
@@ -85,12 +106,13 @@ function passStringToWasm0(arg, malloc, realloc) {
 /**
 * @param {string} _output
 * @param {number} turn
+* @param {boolean} visualizer_mode
 * @returns {Ret}
 */
-export function vis(_output, turn) {
+export function vis(_output, turn, visualizer_mode) {
     const ptr0 = passStringToWasm0(_output, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     const len0 = WASM_VECTOR_LEN;
-    const ret = wasm.vis(ptr0, len0, turn);
+    const ret = wasm.vis(ptr0, len0, turn, visualizer_mode);
     return Ret.__wrap(ret);
 }
 
@@ -143,6 +165,30 @@ export class Ret {
     */
     set score(arg0) {
         wasm.__wbg_set_ret_score(this.__wbg_ptr, arg0);
+    }
+    /**
+    * @returns {Float64Array}
+    */
+    get scores() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.__wbg_get_ret_scores(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var v1 = getArrayF64FromWasm0(r0, r1).slice();
+            wasm.__wbindgen_free(r0, r1 * 8, 8);
+            return v1;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+    * @param {Float64Array} arg0
+    */
+    set scores(arg0) {
+        const ptr0 = passArrayF64ToWasm0(arg0, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        wasm.__wbg_set_ret_scores(this.__wbg_ptr, ptr0, len0);
     }
     /**
     * @returns {string}
@@ -276,6 +322,7 @@ function __wbg_finalize_init(instance, module) {
     wasm = instance.exports;
     __wbg_init.__wbindgen_wasm_module = module;
     cachedDataViewMemory0 = null;
+    cachedFloat64ArrayMemory0 = null;
     cachedUint8ArrayMemory0 = null;
 
 
