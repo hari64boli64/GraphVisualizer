@@ -2,6 +2,7 @@ export type VisualizerSettingInfo = {
   output: string;
   turn: number;
   maxTurn: number;
+  visualizerMode: boolean;
 };
 
 export type VisualizerResult = {
@@ -9,4 +10,5 @@ export type VisualizerResult = {
   svgString2: string;
   err: string;
   score: number;
+  scores: Float64Array;
 };

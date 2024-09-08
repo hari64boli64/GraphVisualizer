@@ -24,6 +24,7 @@ const AHCLikeVisualizer: FC = () => {
       ].join('\n'),
       turn: 0,
       maxTurn: 0,
+      visualizerMode: true,
     });
 
   const [visualizerResult, setVisualizerResult] = useState<VisualizerResult>({
@@ -31,13 +32,12 @@ const AHCLikeVisualizer: FC = () => {
     svgString2: '',
     err: '',
     score: 0,
+    scores: Float64Array.from([0]),
   });
 
   useEffect(() => {
     try {
-      const maxTurn = getMaxTurn(
-        visualizerSettingInfo.output
-      );
+      const maxTurn = getMaxTurn(visualizerSettingInfo.output);
       setVisualizerSettingInfo((prev) => ({
         ...prev,
         maxTurn,
@@ -51,16 +51,14 @@ const AHCLikeVisualizer: FC = () => {
         turn: 0,
       }));
     }
-  }, [
-    visualizerSettingInfo.output,
-    setVisualizerSettingInfo,
-  ]);
+  }, [visualizerSettingInfo.output, setVisualizerSettingInfo]);
 
   useEffect(() => {
     try {
       const ret = vis(
         visualizerSettingInfo.output,
-        visualizerSettingInfo.turn
+        visualizerSettingInfo.turn,
+        visualizerSettingInfo.visualizerMode
       );
       console.log(ret);
       setVisualizerResult({
@@ -68,6 +66,7 @@ const AHCLikeVisualizer: FC = () => {
         svgString2: ret.svg2,
         err: ret.err,
         score: Number(ret.score),
+        scores: ret.scores,
       });
     } catch (e) {
       // visが失敗した場合にはエラーを出力する
@@ -81,11 +80,13 @@ const AHCLikeVisualizer: FC = () => {
         svgString2: '',
         err: msg,
         score: 0,
+        scores: Float64Array.from([0]),
       });
     }
   }, [
     visualizerSettingInfo.turn,
     visualizerSettingInfo.output,
+    visualizerSettingInfo.visualizerMode,
   ]);
 
   return (
@@ -108,6 +109,7 @@ const AHCLikeVisualizer: FC = () => {
         svgString2={visualizerResult.svgString2}
         err={visualizerResult.err}
         score={visualizerResult.score}
+        scores={visualizerResult.scores}
       ></SvgViewer>
     </>
   );

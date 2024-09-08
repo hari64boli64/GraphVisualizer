@@ -9,10 +9,10 @@
     "preview": "vite preview",
     "deploy": "gh-pages -d dist",
     "eject": "npm run build",
-    "lint:es": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
-    "lint:es:fix": "eslint --fix 'src/**/*.{js,jsx,ts,tsx}'",
-    "lint:style": "stylelint 'src/**/*.{css,less,sass,scss}'",
-    "lint:style:fix": "stylelint --fix 'src/**/*.{css,less,sass,scss}'",
+    "lint:es": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
+    "lint:es:fix": "eslint --fix \"src/**/*.{js,jsx,ts,tsx}\"",
+    "lint:style": "stylelint \"src/**/*.{css,less,sass,scss}\"",
+    "lint:style:fix": "stylelint --fix \"src/**/*.{css,less,sass,scss}\"",
     "lint": "npm run --silent lint:style; npm run --silent lint:es",
     "lint:fix": "npm run --silent lint:style:fix; npm run --silent lint:es:fix",
     "format": "prettier --write --loglevel=warn 'src/**/*.{js,jsx,ts,tsx,html,json,gql,graphql}'",
@@ -23,9 +23,11 @@
     "gif.js": "^0.2.0",
     "jszip": "^3.10.1",
     "react": "^18.2.0",
+    "react-charts": "^3.0.0-beta.57",
     "react-dom": "^18.2.0",
     "react-mathjax": "^1.0.1",
-    "react-router-dom": "^6.26.0"
+    "react-router-dom": "^6.26.0",
+    "recharts": "^2.12.7"
   },
   "devDependencies": {
     "@types/eslint": "~9.6.0",

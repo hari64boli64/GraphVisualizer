@@ -18,7 +18,8 @@ const SvgViewer: FC<SvgViewerProps> = ({ visualizerSettingInfo }) => {
   const onSavePng = useCallback(() => {
     const ret = vis(
       visualizerSettingInfo.output,
-      visualizerSettingInfo.turn
+      visualizerSettingInfo.turn,
+      visualizerSettingInfo.visualizerMode
     );
     const svg = new DOMParser()
       .parseFromString(ret.svg1, 'image/svg+xml')
@@ -42,12 +43,14 @@ const SvgViewer: FC<SvgViewerProps> = ({ visualizerSettingInfo }) => {
   }, [
     visualizerSettingInfo.output,
     visualizerSettingInfo.turn,
+    visualizerSettingInfo.visualizerMode,
   ]);
 
   const onSaveGif = useCallback(() => {
     setAnimationButtonDisabled(true);
     const output = visualizerSettingInfo.output;
     const maxTurn = visualizerSettingInfo.maxTurn;
+    const visualizerMode = visualizerSettingInfo.visualizerMode;
     const step = 1;
     const delay = (step * 2000) / 60;
     const gif = new GIF({
@@ -64,7 +67,7 @@ const SvgViewer: FC<SvgViewerProps> = ({ visualizerSettingInfo }) => {
       setAnimationButtonDescription(
         String(Math.round((50.0 * t) / maxTurn)).padStart(3, ' ') + '% finished'
       );
-      const svgData = vis(output, t).svg1;
+      const svgData = vis(output, t, visualizerMode).svg1;
       const svg = new DOMParser()
         .parseFromString(svgData, 'image/svg+xml')
         .getElementById('vis') as unknown as SVGSVGElement | null;
@@ -80,7 +83,7 @@ const SvgViewer: FC<SvgViewerProps> = ({ visualizerSettingInfo }) => {
         if (t === maxTurn) {
           gif.addFrame(canvas, { delay: 3000 });
         } else {
-          gif.addFrame(canvas, { delay: delay });
+          gif.addFrame(canvas, { delay });
         }
         if (t < maxTurn) {
           addFrame(Math.min(t + step, maxTurn));
@@ -106,6 +109,7 @@ const SvgViewer: FC<SvgViewerProps> = ({ visualizerSettingInfo }) => {
   }, [
     visualizerSettingInfo.output,
     visualizerSettingInfo.maxTurn,
+    visualizerSettingInfo.visualizerMode,
     setAnimationButtonDescription,
     setAnimationButtonDisabled,
   ]);

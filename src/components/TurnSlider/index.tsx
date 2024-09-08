@@ -17,6 +17,7 @@ const TurnSlider: FC<TurnSliderProps> = ({
   const [sliderContent, setSliderContent] = useState('▶');
   const [sliderSpeed, setSliderSpeed] = useState(30);
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
+
   const onChangeSliderSpeed = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSliderSpeed(Number(e.target.value));
   };
@@ -48,13 +49,7 @@ const TurnSlider: FC<TurnSliderProps> = ({
     const tickMilliseconds = 3000 / sliderSpeed;
     const id = setInterval(incrementTurn, tickMilliseconds);
     setIntervalId(id);
-  }, [
-    setIntervalId,
-    setSliderContent,
-    visualizerSettingInfo.maxTurn,
-    sliderSpeed,
-    incrementTurn,
-  ]);
+  }, [setIntervalId, setSliderContent, incrementTurn, sliderSpeed]);
 
   // turnがmaxTurnになったらタイマーを止める
   useEffect(() => {
@@ -69,6 +64,13 @@ const TurnSlider: FC<TurnSliderProps> = ({
     } else {
       stopSlider();
     }
+  };
+
+  const onChangeVisualizerMode = () => {
+    setVisualizerSettingInfo((prev) => ({
+      ...prev,
+      visualizerMode: !prev.visualizerMode,
+    }));
   };
 
   return (
@@ -92,7 +94,7 @@ const TurnSlider: FC<TurnSliderProps> = ({
           />
           fast
         </label>
-        <label>
+        <label style={{ marginRight: '10px', marginLeft: '10px' }}>
           turn:
           <input
             type="number"
@@ -102,6 +104,14 @@ const TurnSlider: FC<TurnSliderProps> = ({
             className={styles.turnInput} //eslint-disable-line
             onChange={onChangeTurn}
           />{' '}
+        </label>
+        <label style={{ marginRight: '10px', marginLeft: '10px' }}>
+          edge mode:
+          <input
+            type="checkbox"
+            checked={visualizerSettingInfo.visualizerMode}
+            onChange={onChangeVisualizerMode}
+          />
         </label>
       </p>
       <p>

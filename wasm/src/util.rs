@@ -14,6 +14,8 @@ pub struct Output {
     pub t: usize,                           // number of turns
     pub positions: Vec<Vec<(f64, f64)>>,    // positions[turn][vertex]
     pub positionsVis: Vec<Vec<(f64, f64)>>, // for visualization
+    pub score0: f64,                        // initial score
+    pub scores: Vec<f64>,                   // scores[turn]
 }
 
 fn readVal(iter: &mut std::str::SplitWhitespace) -> f64 {
@@ -64,6 +66,51 @@ fn get_jet(val: f64) -> std::string::String {
     )
 }
 
+fn calcScore(
+    turn: usize,
+    n: usize,
+    m: usize,
+    k: f64,
+    row: &Vec<usize>,
+    col: &Vec<usize>,
+    data: &Vec<f64>,
+    t: usize,
+    positions: &Vec<Vec<(f64, f64)>>,
+    score0: f64,
+) -> f64 {
+    assert!(turn < t);
+    let mut score = score0;
+    let mut sortedPostion0 = positions[0].clone();
+    let mut sortedPostiont = positions[turn].clone();
+    sortedPostion0.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    sortedPostiont.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    if sortedPostion0 != sortedPostiont {
+        score = 0.0;
+        for i in 0..n {
+            for j in i + 1..n {
+                let x1 = positions[turn][i].0;
+                let y1 = positions[turn][i].1;
+                let x2 = positions[turn][j].0;
+                let y2 = positions[turn][j].1;
+                let d = ((x1 - x2).powi(2) + (y1 - y2).powi(2)).sqrt();
+                score -= k.powi(2) * d.ln();
+            }
+        }
+    };
+    for i in 0..m {
+        let u = row[i];
+        let v = col[i];
+        let a = data[i];
+        let x1 = positions[turn][u].0;
+        let y1 = positions[turn][u].1;
+        let x2 = positions[turn][v].0;
+        let y2 = positions[turn][v].1;
+        let d = ((x1 - x2).powi(2) + (y1 - y2).powi(2)).sqrt();
+        score += a * d.powi(3) / (3.0 * k);
+    }
+    score
+}
+
 pub fn parse_output(f: &str) -> Output {
     let mut iter = f.split_whitespace();
     let n = readVal(&mut iter) as usize;
@@ -103,6 +150,24 @@ pub fn parse_output(f: &str) -> Output {
                 H * 0.05 + H * 0.9 * (positions[i][j].1 - minXY) * invMaxMinusMin;
         }
     }
+
+    let mut score0 = 0.0;
+    for i in 0..n {
+        for j in i + 1..n {
+            let x1 = positions[0][i].0;
+            let y1 = positions[0][i].1;
+            let x2 = positions[0][j].0;
+            let y2 = positions[0][j].1;
+            let d = ((x1 - x2).powi(2) + (y1 - y2).powi(2)).sqrt();
+            score0 -= k.powi(2) * d.ln();
+        }
+    }
+
+    let mut scores = vec![0.0; t];
+    for i in 0..t {
+        scores[i] = calcScore(i, n, m, k, &row, &col, &data, t, &positions, score0);
+    }
+
     Output {
         n,
         m,
@@ -113,37 +178,16 @@ pub fn parse_output(f: &str) -> Output {
         t,
         positions,
         positionsVis,
+        score0,
+        scores,
     }
 }
 
-fn calcScore(output: &Output, turn: usize) -> f64 {
-    assert!(turn < output.t);
-    let mut score = 0.0;
-    for i in 0..output.n {
-        for j in i + 1..output.n {
-            let x1 = output.positions[0][i].0;
-            let y1 = output.positions[0][i].1;
-            let x2 = output.positions[0][j].0;
-            let y2 = output.positions[0][j].1;
-            let d = ((x1 - x2).powi(2) + (y1 - y2).powi(2)).sqrt();
-            score -= output.k.powi(2) * d.ln();
-        }
-    }
-    for i in 0..output.m {
-        let u = output.row[i];
-        let v = output.col[i];
-        let a = output.data[i];
-        let x1 = output.positions[turn][u].0;
-        let y1 = output.positions[turn][u].1;
-        let x2 = output.positions[turn][v].0;
-        let y2 = output.positions[turn][v].1;
-        let d = ((x1 - x2).powi(2) + (y1 - y2).powi(2)).sqrt();
-        score += a * d.powi(3) / (3.0 * output.k);
-    }
-    score
-}
-
-pub fn vis(output: &Output, turn: usize) -> (f64, String, String, String) {
+pub fn vis(
+    output: &Output,
+    turn: usize,
+    visualizer_mode: bool,
+) -> (f64, Vec<f64>, String, String, String) {
     let mut doc = svg::Document::new()
         .set("id", "vis")
         .set("viewBox", (-5, -5, W + 10.0, H + 10.0))
@@ -157,37 +201,72 @@ pub fn vis(output: &Output, turn: usize) -> (f64, String, String, String) {
 
     assert!(turn < output.t);
 
-    for i in 0..output.m {
-        let u = output.row[i];
-        let v = output.col[i];
-        let x1 = output.positionsVis[turn][u].0;
-        let y1 = output.positionsVis[turn][u].1;
-        let x2 = output.positionsVis[turn][v].0;
-        let y2 = output.positionsVis[turn][v].1;
-        doc = doc.add(
-            Line::new()
-                .set("x1", x1)
-                .set("y1", y1)
-                .set("x2", x2)
-                .set("y2", y2)
-                .set("stroke", "black"),
-        );
+    if visualizer_mode {
+        for i in 0..output.n {
+            let (x, y) = output.positionsVis[turn][i];
+            doc = doc.add(
+                Circle::new()
+                    .set("cx", x)
+                    .set("cy", y)
+                    .set("r", 10)
+                    .set("fill", "black"),
+                // .add(svg::node::element::Title::new().add(svg::node::Text::new(format!("v{}", i)))),
+            );
+        }
+
+        for i in 0..output.m {
+            let u = output.row[i];
+            let v = output.col[i];
+            let x1 = output.positionsVis[turn][u].0;
+            let y1 = output.positionsVis[turn][u].1;
+            let x2 = output.positionsVis[turn][v].0;
+            let y2 = output.positionsVis[turn][v].1;
+            doc = doc.add(
+                Line::new()
+                    .set("x1", x1)
+                    .set("y1", y1)
+                    .set("x2", x2)
+                    .set("y2", y2)
+                    .set("stroke-width", 3)
+                    .set("stroke", get_jet(i as f64 / output.m as f64)),
+            );
+        }
+    } else {
+        for i in 0..output.m {
+            let u = output.row[i];
+            let v = output.col[i];
+            let x1 = output.positionsVis[turn][u].0;
+            let y1 = output.positionsVis[turn][u].1;
+            let x2 = output.positionsVis[turn][v].0;
+            let y2 = output.positionsVis[turn][v].1;
+            doc = doc.add(
+                Line::new()
+                    .set("x1", x1)
+                    .set("y1", y1)
+                    .set("x2", x2)
+                    .set("y2", y2)
+                    .set("stroke", "black"),
+            );
+        }
+
+        for i in 0..output.n {
+            let (x, y) = output.positionsVis[turn][i];
+            doc = doc.add(
+                Circle::new()
+                    .set("cx", x)
+                    .set("cy", y)
+                    .set("r", 10)
+                    .set("fill", get_jet(i as f64 / output.n as f64)),
+                // .add(svg::node::element::Title::new().add(svg::node::Text::new(format!("v{}", i)))),
+            );
+        }
     }
 
-    for i in 0..output.n {
-        let (x, y) = output.positionsVis[turn][i];
-        doc = doc.add(
-            Circle::new()
-                .set("cx", x)
-                .set("cy", y)
-                .set("r", 10)
-                .set("fill", get_jet(i as f64 / output.n as f64))
-                .add(svg::node::element::Title::new().add(svg::node::Text::new(format!("v{}", i)))),
-        );
-    }
-
-    let score = calcScore(output, if turn == 0 { output.t - 1 } else { turn - 1 });
-    let doc2 = "";
-
-    (score, "".to_string(), doc.to_string(), doc2.to_string())
+    (
+        output.scores[if turn == 0 { output.t - 1 } else { turn - 1 }],
+        output.scores.clone(),
+        "".to_string(),
+        doc.to_string(),
+        "".to_string(),
+    )
 }
