@@ -208,7 +208,7 @@ pub fn vis(
                 Circle::new()
                     .set("cx", x)
                     .set("cy", y)
-                    .set("r", 10)
+                    .set("r", 3)
                     .set("fill", "black"),
                 // .add(svg::node::element::Title::new().add(svg::node::Text::new(format!("v{}", i)))),
             );
@@ -255,7 +255,7 @@ pub fn vis(
                 Circle::new()
                     .set("cx", x)
                     .set("cy", y)
-                    .set("r", 10)
+                    .set("r", 3)
                     .set("fill", get_jet(i as f64 / output.n as f64)),
                 // .add(svg::node::element::Title::new().add(svg::node::Text::new(format!("v{}", i)))),
             );
