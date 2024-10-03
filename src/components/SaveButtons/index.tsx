@@ -122,6 +122,7 @@ const SvgViewer: FC<SvgViewerProps> = ({ visualizerSettingInfo }) => {
           id="save_png"
           value="Save as PNG"
           onClick={onSavePng}
+          style={{ marginRight: '10px' }}
         />
         <input
           type="button"

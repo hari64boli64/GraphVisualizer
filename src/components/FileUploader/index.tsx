@@ -56,7 +56,7 @@ const FileUploader: FC<FileUploaderProps> = ({ setVisualizerSettingInfo }) => {
   return (
     <>
       <p>
-        <label>
+        <label style={{ marginRight: '10px' }}>
           File:
           <select disabled={selectDisabled} onChange={onSelectFile}>
             {files.map((file, index) => (

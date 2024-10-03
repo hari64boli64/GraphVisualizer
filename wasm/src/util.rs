@@ -7,14 +7,10 @@ const H: f64 = 600.0;
 pub struct Output {
     pub n: usize,                           // number of vertices
     pub m: usize,                           // number of edges
-    pub k: f64,                             // constant for score calculation
     pub row: Vec<usize>,                    // edge u
     pub col: Vec<usize>,                    // edge v
-    pub data: Vec<f64>,                     // edge weight
     pub t: usize,                           // number of turns
-    pub positions: Vec<Vec<(f64, f64)>>,    // positions[turn][vertex]
     pub positionsVis: Vec<Vec<(f64, f64)>>, // for visualization
-    pub score0: f64,                        // initial score
     pub scores: Vec<f64>,                   // scores[turn]
 }
 
@@ -80,11 +76,11 @@ fn calcScore(
 ) -> f64 {
     assert!(turn < t);
     let mut score = score0;
-    let mut sortedPostion0 = positions[0].clone();
-    let mut sortedPostiont = positions[turn].clone();
-    sortedPostion0.sort_by(|a, b| a.partial_cmp(b).unwrap());
-    sortedPostiont.sort_by(|a, b| a.partial_cmp(b).unwrap());
-    if sortedPostion0 != sortedPostiont {
+    let mut sortedPosition0 = positions[0].clone();
+    let mut sortedPositionT = positions[turn].clone();
+    sortedPosition0.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    sortedPositionT.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    if sortedPosition0 != sortedPositionT {
         score = 0.0;
         for i in 0..n {
             for j in i + 1..n {
@@ -128,10 +124,12 @@ pub fn parse_output(f: &str) -> Output {
         data[i] = w;
     }
     let t = readVal(&mut iter) as usize;
+
     let mut positions = vec![vec![(0.0, 0.0); n]; t];
-    let mut maxXY = -1e9;
-    let mut minXY = 1e9;
+    let mut positionsVis = vec![vec![(0.0, 0.0); n]; t];
     for i in 0..t {
+        let mut maxXY = -1e9;
+        let mut minXY = 1e9;
         for j in 0..n {
             let x = readVal(&mut iter);
             let y = readVal(&mut iter);
@@ -139,10 +137,7 @@ pub fn parse_output(f: &str) -> Output {
             maxXY = f64::max(maxXY, f64::max(x, y));
             minXY = f64::min(minXY, f64::min(x, y));
         }
-    }
-    let invMaxMinusMin = 1.0 / (maxXY - minXY);
-    let mut positionsVis = vec![vec![(0.0, 0.0); n]; t];
-    for i in 0..t {
+        let invMaxMinusMin = 1.0 / (maxXY - minXY);
         for j in 0..n {
             positionsVis[i][j].0 =
                 W * 0.05 + W * 0.9 * (positions[i][j].0 - minXY) * invMaxMinusMin;
@@ -171,14 +166,10 @@ pub fn parse_output(f: &str) -> Output {
     Output {
         n,
         m,
-        k,
         row,
         col,
-        data,
         t,
-        positions,
         positionsVis,
-        score0,
         scores,
     }
 }
