@@ -1,5 +1,4 @@
 import type { FC } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
 
 type SvgViewerProps = {
   svgString1: string;
@@ -39,18 +38,6 @@ const SvgViewer: FC<SvgViewerProps> = ({
           __html: svgString2,
         }}
       />
-
-      <LineChart
-        width={600}
-        height={300}
-        data={data}
-        margin={{ top: 5, right: 30, bottom: 5, left: 30 }}
-      >
-        <Line type="monotone" dataKey="value" stroke="#8884d8" />
-        <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-        <XAxis dataKey="name" />
-        <YAxis tickMargin={30} />
-      </LineChart>
     </>
   );
 };

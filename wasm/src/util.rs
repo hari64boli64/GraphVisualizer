@@ -11,7 +11,6 @@ pub struct Output {
     pub col: Vec<usize>,                    // edge v
     pub t: usize,                           // number of turns
     pub positionsVis: Vec<Vec<(f64, f64)>>, // for visualization
-    pub scores: Vec<f64>,                   // scores[turn]
 }
 
 fn readVal(iter: &mut std::str::SplitWhitespace) -> f64 {
@@ -62,56 +61,11 @@ fn get_jet(val: f64) -> std::string::String {
     )
 }
 
-fn calcScore(
-    turn: usize,
-    n: usize,
-    m: usize,
-    k: f64,
-    row: &Vec<usize>,
-    col: &Vec<usize>,
-    data: &Vec<f64>,
-    t: usize,
-    positions: &Vec<Vec<(f64, f64)>>,
-    score0: f64,
-) -> f64 {
-    assert!(turn < t);
-    let mut score = score0;
-    let mut sortedPosition0 = positions[0].clone();
-    let mut sortedPositionT = positions[turn].clone();
-    sortedPosition0.sort_by(|a, b| a.partial_cmp(b).unwrap());
-    sortedPositionT.sort_by(|a, b| a.partial_cmp(b).unwrap());
-    if sortedPosition0 != sortedPositionT {
-        score = 0.0;
-        for i in 0..n {
-            for j in i + 1..n {
-                let x1 = positions[turn][i].0;
-                let y1 = positions[turn][i].1;
-                let x2 = positions[turn][j].0;
-                let y2 = positions[turn][j].1;
-                let d = ((x1 - x2).powi(2) + (y1 - y2).powi(2)).sqrt();
-                score -= k.powi(2) * d.ln();
-            }
-        }
-    };
-    for i in 0..m {
-        let u = row[i];
-        let v = col[i];
-        let a = data[i];
-        let x1 = positions[turn][u].0;
-        let y1 = positions[turn][u].1;
-        let x2 = positions[turn][v].0;
-        let y2 = positions[turn][v].1;
-        let d = ((x1 - x2).powi(2) + (y1 - y2).powi(2)).sqrt();
-        score += a * d.powi(3) / (3.0 * k);
-    }
-    score
-}
-
 pub fn parse_output(f: &str) -> Output {
     let mut iter = f.split_whitespace();
     let n = readVal(&mut iter) as usize;
     let m = readVal(&mut iter) as usize;
-    let k = readVal(&mut iter);
+    let _k = readVal(&mut iter);
     let mut row = vec![0; m];
     let mut col = vec![0; m];
     let mut data = vec![0.0; m];
@@ -146,23 +100,6 @@ pub fn parse_output(f: &str) -> Output {
         }
     }
 
-    let mut score0 = 0.0;
-    for i in 0..n {
-        for j in i + 1..n {
-            let x1 = positions[0][i].0;
-            let y1 = positions[0][i].1;
-            let x2 = positions[0][j].0;
-            let y2 = positions[0][j].1;
-            let d = ((x1 - x2).powi(2) + (y1 - y2).powi(2)).sqrt();
-            score0 -= k.powi(2) * d.ln();
-        }
-    }
-
-    let mut scores = vec![0.0; t];
-    for i in 0..t {
-        scores[i] = calcScore(i, n, m, k, &row, &col, &data, t, &positions, score0);
-    }
-
     Output {
         n,
         m,
@@ -170,7 +107,6 @@ pub fn parse_output(f: &str) -> Output {
         col,
         t,
         positionsVis,
-        scores,
     }
 }
 
@@ -254,8 +190,8 @@ pub fn vis(
     }
 
     (
-        output.scores[if turn == 0 { output.t - 1 } else { turn - 1 }],
-        output.scores.clone(),
+        -1.0,
+        vec![-1.0; output.n],
         "".to_string(),
         doc.to_string(),
         "".to_string(),
